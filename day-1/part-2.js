@@ -59,6 +59,5 @@ https.get(INPUT_URL, options, (res) => {
       0
     );
     console.log({ maxCalories, sumOfMaxCalories });
-    // Answer is: 196804
   });
 });

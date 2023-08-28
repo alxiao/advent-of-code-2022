@@ -77,6 +77,6 @@ https.get(INPUT_URL, options, (res) => {
       }
     });
 
-    console.log(maxCalories); // Answer is: 66186
+    console.log(maxCalories);
   });
 });
