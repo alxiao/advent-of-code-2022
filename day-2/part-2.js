@@ -90,6 +90,6 @@ https.get(INPUT_URL, options, (res) => {
       runningPlayedElementSum += getElementPlayedScore(elements);
     });
 
-    console.log({ totalScore: runningPlayedElementSum + runningOutcomeSum }); // Answer is: 13693
+    console.log({ totalScore: runningPlayedElementSum + runningOutcomeSum });
   });
 });
