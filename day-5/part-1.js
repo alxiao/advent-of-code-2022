@@ -70,28 +70,26 @@ const options = {
   },
 };
 
+// Create an array of arrays, where each array represents a stack of letters
 const getListOfStacks = (stackString) => {
   const stackRows = stackString.split('\n');
-  const numOfStacks = (stackRows[0].length + 1) / 4;
+  const numOfStacks = (stackRows[0].length + 1) / 4; // Each stack column takes 4 char
 
-  let listOfStacks = Array(numOfStacks).fill([]);
-  console.log({ listOfStacks });
+  let listOfStacks = Array.from({ length: numOfStacks }, () => []);
 
   for (let i = stackRows.length - 2; i >= 0; i--) {
     const currentStackRow = stackRows[i];
-    console.log({ currentStackRow });
-    const list = currentStackRow.match(/.{1,4}/g) ?? [];
-    console.log({ list });
+    const list = currentStackRow.match(/.{1,4}/g); // Split row into groups of 4 chars
+
     list.forEach((item, idx) => {
-      console.log({ idx });
-      if (item[1] !== ' ') {
-        console.log(listOfStacks[idx]);
-        const stack = listOfStacks[idx];
-        stack.push(item[1]);
-        console.log({ listOfStacks });
+      const letter = item.match(/[a-zA-Z]{1}/g)?.[0];
+
+      if (!!letter) {
+        listOfStacks[idx].push(letter);
       }
     });
   }
+
   console.log({ listOfStacks });
 
   return listOfStacks;
