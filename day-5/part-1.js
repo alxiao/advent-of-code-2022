@@ -58,16 +58,43 @@ SOLUTION:
 3. Split the starting crates string by newline and store in an array called startingCrateStrings.
 4. The number of stacks is startingCrateStrings[0].length / 4. Each stack has a width of 4 char
 5. Loop through startingCrateStrings in reverse, and then parse each string to push a crate letter on top of the appropriate arrays
+6. To apply procedures, parse each line to get # of moves (numMoves), starting stack, ending stack.
+7. Apply for loop to iterate numMoves times and pop the letter from the starting stack, and push it onto the ending stack.
 */
 
 const https = require('node:https');
 require('dotenv').config();
 
-const INPUT_URL = 'https://adventofcode.com/2022/day/4/input';
+const INPUT_URL = 'https://adventofcode.com/2022/day/5/input';
 const options = {
   headers: {
     Cookie: process.env.COOKIE,
   },
+};
+
+const getTopItems = (listOfStacks) => {
+  return listOfStacks.reduce(
+    (accumulativeValue, stack) => accumulativeValue + stack.slice(-1),
+    ''
+  );
+};
+
+const applyProcedures = (listOfStacks, procedures) => {
+  const procedureArray = procedures.split('\n');
+  procedureArray.pop(); // unnecessary last line is empty
+
+  procedureArray.forEach((procedure) => {
+    const numberMatch = procedure.match(/ \d+/g);
+    const [numMoves, startingStack, endingStack] = numberMatch;
+
+    const range = [...Array(Number(numMoves)).keys()];
+    range.forEach(() => {
+      const item = listOfStacks[startingStack - 1].pop();
+      listOfStacks[endingStack - 1].push(item);
+    });
+  });
+
+  return listOfStacks;
 };
 
 // Create an array of arrays, where each array represents a stack of letters
@@ -90,31 +117,19 @@ const getListOfStacks = (stackString) => {
     });
   }
 
-  console.log({ listOfStacks });
-
   return listOfStacks;
 };
 
 const processData = (data) => {
-  // const input = String(data).split('\n');
-  const input = data.split('\n\n');
-  // input.pop(); // Remove last empty string array item
+  const input = String(data).split('\n\n');
 
   const listOfStacks = getListOfStacks(input[0]);
+  const endingListOfStacks = applyProcedures(listOfStacks, input[1]);
+  const topItems = getTopItems(endingListOfStacks);
+
+  console.log({ topItems });
 };
 
-const input = `    [D]    
-[N] [C]    
-[Z] [M] [P]
- 1   2   3 
-
-move 1 from 2 to 1
-move 3 from 1 to 3
-move 2 from 2 to 1
-move 1 from 1 to 2`;
-
-processData(input);
-
-// https.get(INPUT_URL, options, (res) => {
-//   res.on('data', processData);
-// });
+https.get(INPUT_URL, options, (res) => {
+  res.on('data', processData);
+});
