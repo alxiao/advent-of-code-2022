@@ -21,6 +21,7 @@ SOLUTION:
 */
 
 const https = require('node:https');
+const { processData } = require('./part-1');
 require('dotenv').config();
 
 const INPUT_URL = 'https://adventofcode.com/2022/day/6/input';
@@ -30,31 +31,6 @@ const options = {
   },
 };
 
-const MARKER_LENGTH = 14;
-
-const processData = (data) => {
-  let numChar = 0;
-  let potentialMarker = [];
-
-  for (const b of data) {
-    const char = b.toString();
-
-    if (potentialMarker.length === MARKER_LENGTH) break;
-
-    numChar += 1;
-    const existingCharIdx = potentialMarker.indexOf(char);
-    if (existingCharIdx !== -1) {
-      potentialMarker = potentialMarker.splice(existingCharIdx + 1);
-    }
-
-    potentialMarker.push(char);
-  }
-
-  if (potentialMarker.length === MARKER_LENGTH) {
-    console.log({ numChar });
-  }
-};
-
 https.get(INPUT_URL, options, (res) => {
-  res.on('data', processData);
+  res.on('data', (data) => processData(data, 14));
 });

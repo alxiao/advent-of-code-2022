@@ -51,14 +51,14 @@ const options = {
   },
 };
 
-const processData = (data) => {
+const processData = (data, markerLength = 4) => {
   let numChar = 0;
   let potentialMarker = [];
 
   for (const b of data) {
     const char = b.toString();
 
-    if (potentialMarker.length === 4) break;
+    if (potentialMarker.length === markerLength) break;
 
     numChar += 1;
     const existingCharIdx = potentialMarker.indexOf(char);
@@ -69,7 +69,7 @@ const processData = (data) => {
     potentialMarker.push(char);
   }
 
-  if (potentialMarker.length === 4) {
+  if (potentialMarker.length === markerLength) {
     console.log({ numChar });
   }
 };
@@ -77,3 +77,5 @@ const processData = (data) => {
 https.get(INPUT_URL, options, (res) => {
   res.on('data', processData);
 });
+
+module.exports = { processData };
