@@ -51,8 +51,6 @@ const options = {
   },
 };
 
-// const input = 'nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg';
-
 const processData = (data) => {
   let numChar = 0;
   let potentialMarker = [];
