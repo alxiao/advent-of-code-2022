@@ -88,62 +88,93 @@ Use recursion to find the sum of file size of all files and directories in a dir
 6. If directory's file size is less than 100 000, add it to the running sum
 */
 
-const testInput = `$ cd /
-$ ls
-dir a
-14848514 b.txt
-8504156 c.dat
-dir d
-$ cd a
-$ ls
-dir e
-29116 f
-2557 g
-62596 h.lst
-$ cd e
-$ ls
-584 i
-$ cd ..
-$ cd ..
-$ cd d
-$ ls
-4060174 j
-8033020 d.log
-5626152 d.ext
-7214296 k
-`;
+// const testInput = `$ cd /
+// $ ls
+// dir a
+// 14848514 b.txt
+// 8504156 c.dat
+// dir d
+// $ cd a
+// $ ls
+// dir e
+// 29116 f
+// 2557 g
+// 62596 h.lst
+// $ cd e
+// $ ls
+// 584 i
+// $ cd ..
+// $ cd ..
+// $ cd d
+// $ ls
+// 4060174 j
+// 8033020 d.log
+// 5626152 d.ext
+// 7214296 k
+// `;
 
-const readline = require("readline");
-const { Readable } = require("stream");
+const https = require("node:https");
+require("dotenv").config();
 
-const processData = (data) => {
-  const bufferStream = new stream.PassThrough();
-  bufferStream.end(Buffer.from(data));
-
-  // const rl = readline.createInterface({
-  //   input: bufferStream,
-  // });
-
-  // let count = 0;
-  // let dirSize = 0;
-  // rl.on("line", (line) => {
-  //   if (!!line.match(/\$ cd [a-zA-Z]*/)) {
-  //     //     console.log({ line });
-  //   }
-  //   console.log("this is " + ++count + " line, content = " + line);
-  // });
-
-  const stream = Readable.from(bufferStream);
-
-  // console.log({ input });
-
-  // input.forEach((line) => {
-  //   if (!!line.match(/\$ cd [a-zA-Z]*/)) {
-  //     let dirSize = 0;
-
-  //     console.log({ line });
-  //   }
-  // });
+const INPUT_URL = "https://adventofcode.com/2022/day/7/input";
+const options = {
+  headers: {
+    Cookie: process.env.COOKIE,
+  },
 };
 
-processData(testInput);
+const DIR_SIZE_THRESHOLD = 100000;
+
+const getDirSize = (input) => {
+  let dirSize = 0;
+
+  for (let i = 0; i < input.length; i++) {
+    const line = input[i];
+
+    if (!!line.match(/^dir [a-zA-Z]+/g)) {
+      const commandToFind = `$ cd ${line.split(" ")[1]}`;
+      const dirIdx = input.indexOf(commandToFind);
+      // Recursively get the dir size
+      const numToAdd = getDirSize(input.slice(dirIdx + 2));
+
+      dirSize += numToAdd;
+    } else if (!!line.match(/^\$ cd \.\./) || !!line.match(/^\$/)) {
+      // End of current dir list, break and return dirSize
+      break;
+    } else if (!!line.match(/^\d+/)) {
+      // Add file size
+      const numToAdd = Number(line.match(/^\d+/)[0]);
+
+      dirSize += numToAdd;
+    }
+  }
+
+  return dirSize;
+};
+
+const processData = (data) => {
+  const input = String(data).split("\n");
+  input.pop();
+
+  let runningDirSize = 0;
+
+  input.forEach((line, idx) => {
+    if (!!line.match(/\$ cd (\/|[a-zA-Z]+)/g)) {
+      const dirSize = getDirSize(input.slice(idx + 2));
+
+      if (dirSize <= DIR_SIZE_THRESHOLD) {
+        runningDirSize += dirSize;
+      }
+
+      // console.log("processData: ", { line, dirSize });
+    }
+  });
+
+  console.log({ runningDirSize });
+};
+
+// processData(testInput);
+
+https.get(INPUT_URL, options, (res) => {
+  res.on("data", processData);
+});
